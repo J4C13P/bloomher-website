@@ -4,3 +4,295 @@ git commit -m "Initial BloomHer website"
 git remote add origin https://github.com/J4C13P/bloomher-website.git
 git branch -M main
 git push -u origin main
+import { useState } from "react";
+
+/* ---------------- MOCK USERS ---------------- */
+const mockUsers = [
+  { email: "client@test.com", password: "1234", role: "client", subscription: "basic" },
+  { email: "nutri@test.com", password: "1234", role: "nutritionist", subscription: "pro" }
+];
+
+/* ---------------- AI MEAL PLAN ---------------- */
+function generateMealPlan(goal, allergies, budget) {
+  return `
+🍽 7-Day Kenyan Meal Plan
+
+Goal: ${goal}
+Allergies: ${allergies}
+Budget: ${budget} KSh/day
+
+DAY 1:
+- Breakfast: Oats + banana
+- Lunch: Rice + beans + spinach
+- Dinner: Ugali + sukuma wiki
+
+DAY 2:
+- Breakfast: Tea + eggs + bread
+- Lunch: Githeri
+- Dinner: Fish + rice
+
+💡 Drink 2–3L water daily
+`;
+}
+
+/* ---------------- COLORS ---------------- */
+const theme = {
+  bg: "#F7F8FC",
+  burgundy: "#7B1E3A",
+  burgundyDark: "#5E172D",
+  blue: "#1E4D8C",
+  card: "#FFFFFF",
+  text: "#1F2937"
+};
+
+/* ---------------- APP ---------------- */
+export default function App() {
+  const [user, setUser] = useState(null);
+  const [view, setView] = useState("home");
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [goal, setGoal] = useState("");
+  const [allergies, setAllergies] = useState("");
+  const [budget, setBudget] = useState("");
+  const [mealPlan, setMealPlan] = useState("");
+
+  /* LOGIN */
+  const login = () => {
+    const found = mockUsers.find(
+      (u) => u.email === email && u.password === password
+    );
+
+    if (found) {
+      setUser(found);
+      setView("dashboard");
+    } else alert("Invalid login");
+  };
+
+  const logout = () => {
+    setUser(null);
+    setView("home");
+  };
+
+  const generatePlan = () => {
+    setMealPlan(generateMealPlan(goal, allergies, budget));
+  };
+
+  /* ---------------- HOME ---------------- */
+  if (view === "home") {
+    return (
+      <div style={{ fontFamily: "sans-serif", background: theme.bg, minHeight: "100vh" }}>
+
+        {/* HERO */}
+        <div
+          style={{
+            background: `linear-gradient(135deg, ${theme.burgundy}, ${theme.blue})`,
+            color: "white",
+            padding: "80px 20px",
+            textAlign: "center"
+          }}
+        >
+          <h1 style={{ fontSize: 48, marginBottom: 10 }}>
+            BloomHer Nutrition
+          </h1>
+          <p style={{ fontSize: 18, opacity: 0.9 }}>
+            Personalized nutrition care for real-life wellness
+          </p>
+
+          <button
+            onClick={() => setView("login")}
+            style={{
+              marginTop: 20,
+              padding: "12px 25px",
+              borderRadius: 20,
+              background: "white",
+              color: theme.burgundy,
+              fontWeight: "bold",
+              border: "none",
+              cursor: "pointer"
+            }}
+          >
+            Get Started
+          </button>
+        </div>
+
+        {/* SERVICES */}
+        <div style={{ display: "flex", gap: 20, padding: 30, flexWrap: "wrap", justifyContent: "center" }}>
+          {[
+            { t: "Nutrition Assessment", c: theme.blue },
+            { t: "Meal Planning", c: theme.burgundy },
+            { t: "Lifestyle Coaching", c: theme.blue }
+          ].map((s, i) => (
+            <div
+              key={i}
+              style={{
+                background: theme.card,
+                padding: 20,
+                borderRadius: 16,
+                width: 250,
+                boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
+                borderTop: `4px solid ${s.c}`
+              }}
+            >
+              <h3 style={{ color: s.c }}>{s.t}</h3>
+              <p style={{ color: "#555" }}>
+                Evidence-based care tailored to your needs.
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ textAlign: "center", paddingBottom: 40 }}>
+          <button
+            onClick={() => setView("login")}
+            style={{
+              padding: "12px 20px",
+              borderRadius: 12,
+              border: `2px solid ${theme.burgundy}`,
+              background: "transparent",
+              color: theme.burgundy,
+              cursor: "pointer"
+            }}
+          >
+            Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  /* ---------------- LOGIN ---------------- */
+  if (view === "login") {
+    return (
+      <div style={{ padding: 40, fontFamily: "sans-serif", background: theme.bg, minHeight: "100vh" }}>
+        <h2 style={{ color: theme.burgundy }}>Login</h2>
+
+        <input
+          placeholder="Email"
+          onChange={(e) => setEmail(e.target.value)}
+          style={{ display: "block", padding: 10, margin: 10, width: 250 }}
+        />
+
+        <input
+          placeholder="Password"
+          type="password"
+          onChange={(e) => setPassword(e.target.value)}
+          style={{ display: "block", padding: 10, margin: 10, width: 250 }}
+        />
+
+        <button
+          onClick={login}
+          style={{
+            padding: 10,
+            background: theme.burgundy,
+            color: "white",
+            border: "none",
+            borderRadius: 10,
+            cursor: "pointer"
+          }}
+        >
+          Login
+        </button>
+
+        <button onClick={() => setView("home")} style={{ marginLeft: 10 }}>
+          Back
+        </button>
+      </div>
+    );
+  }
+
+  /* ---------------- DASHBOARD ---------------- */
+  return (
+    <div style={{ fontFamily: "sans-serif", background: theme.bg, minHeight: "100vh", padding: 30 }}>
+
+      {/* HEADER */}
+      <div
+        style={{
+          background: `linear-gradient(135deg, ${theme.blue}, ${theme.burgundy})`,
+          color: "white",
+          padding: 20,
+          borderRadius: 16,
+          marginBottom: 20
+        }}
+      >
+        <h2>Welcome {user.role}</h2>
+        <button onClick={logout} style={{ marginTop: 10 }}>Logout</button>
+      </div>
+
+      {/* SUBSCRIPTION */}
+      <div style={cardStyle(theme)}>
+        <h3 style={{ color: theme.blue }}>Subscription</h3>
+        <p>{user.subscription}</p>
+
+        <button
+          style={buttonStyle(theme.burgundy)}
+          onClick={() => alert("Upgraded to Premium")}
+        >
+          Upgrade (500 KSh)
+        </button>
+      </div>
+
+      {/* AI PLANNER */}
+      <div style={cardStyle(theme)}>
+        <h3 style={{ color: theme.burgundy }}>AI Meal Planner</h3>
+
+        <input placeholder="Goal" onChange={(e) => setGoal(e.target.value)} style={inputStyle} />
+        <input placeholder="Allergies" onChange={(e) => setAllergies(e.target.value)} style={inputStyle} />
+        <input placeholder="Budget" onChange={(e) => setBudget(e.target.value)} style={inputStyle} />
+
+        <button onClick={generatePlan} style={buttonStyle(theme.blue)}>
+          Generate Plan
+        </button>
+
+        <pre style={{ marginTop: 10, whiteSpace: "pre-wrap" }}>{mealPlan}</pre>
+      </div>
+
+      {/* ROLE */}
+      <div style={cardStyle(theme)}>
+        {user.role === "nutritionist" && (
+          <div>
+            <h3 style={{ color: theme.blue }}>Nutritionist Panel</h3>
+            <p>Manage clients and plans</p>
+          </div>
+        )}
+
+        {user.role === "client" && (
+          <div>
+            <h3 style={{ color: theme.burgundy }}>Client Dashboard</h3>
+            <button style={buttonStyle(theme.burgundy)}>
+              Book Appointment
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- STYLES HELPERS ---------------- */
+const cardStyle = (theme) => ({
+  background: "white",
+  padding: 20,
+  borderRadius: 16,
+  marginBottom: 20,
+  boxShadow: "0 8px 20px rgba(0,0,0,0.06)"
+});
+
+const buttonStyle = (color) => ({
+  padding: "10px 15px",
+  background: color,
+  color: "white",
+  border: "none",
+  borderRadius: 10,
+  cursor: "pointer",
+  marginTop: 10
+});
+
+const inputStyle = {
+  display: "block",
+  padding: 10,
+  margin: "8px 0",
+  width: "100%",
+  maxWidth: 300
+};
